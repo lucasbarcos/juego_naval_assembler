@@ -16,17 +16,17 @@ Como se juega:
 8. ~ significa que todavia no se disparo ahi.
 
 Condicion de victoria:
-- Hay 18 partes de barcos escondidas.
-- El jugador gana si encuentra las 18.
+- Hay 6 barcos escondidos.
+- El jugador gana si unde los 6 barcos.
 
 Condicion de derrota:
 - El jugador pierde si se queda sin intentos.
 
-Barcos disponibles:
+Barcos:
 - 1 barco de 5 casillas
 - 1 barco de 4 casillas
-- 1 barco de 3 casillas
-- 3 barcos de 2 casillas
+- 2 barco de 3 casillas
+- 2 barcos de 2 casillas
 
 Compilacion sugerida con TASM:
 	tasm main.asm
@@ -34,10 +34,7 @@ Compilacion sugerida con TASM:
 	tasm tab.asm
 	tlink main+io+tab,main
 	main.exe
+Compilacion rapida:
+	compi
 
-Ideas para ampliar:
-- Agregar menu principal.
-- Agregar dificultad facil/media/dificil.
-- Dejar que el usuario cargue los barcos.
-- Agregar modo dos jugadores.
-- Poner barcos aleatorios usando la hora del sistema como semilla.
+
