@@ -44,7 +44,7 @@ extrn estado:byte
 	TxtBarH db "Hundido el barco ",24h
 	rowSide db 0
 
-	barcos db 5,4,3,3,2,2
+	barcos db 5,4,3,3,2,2 ; Si queremos agregar más barcos, acá sería
 	golpes db 6 dup (0)
 	hundidos db 6 dup (0)
 	barcoAct db 0
@@ -78,7 +78,7 @@ sigBarco:
 	mov bl, barcoAct
 	mov bh, 0
 	mov al, barcos[bx]
-	mov largoAct, al
+	mov largoAct, al ; Determinamos con que barco laburamos
 
 	mov dx, offset Barco
 	call imprimirCadena
@@ -163,25 +163,25 @@ filaTab:
 	mov dx, offset Sangria
 	call imprimirCadena
 	mov ax, si
-	add al, 'A'
+	add al, 'A' ; Podemos hacer esto porque sabemos que el tablero siempre va a lucir igual, si es realmente la referencia a la fila
 	mov dl, al
 	call imprimirChar
 	mov dl, ' '
 	call imprimirChar
-	mov dl, ' '
+	mov dl, ' ' ; estos espacios son para tirar facha nomas, para que quede lindo
 	call imprimirChar
 
-	mov cx, TAM
+	mov cx, TAM ; El tamaño de la grilla, si pedro pide hacerlo más grande o chico, cambia TAM
 
 colTab:
-	mov dl, tableroVis[bx]
+	mov dl, tableroVis[bx] ; Los guiones raros que usamos para marcar la ausencia de algo en el tablero (empty state?????). NO siempre serán guiones, los vamos a reemplazar por lo que sea que usemos para marcar barcos
 	call imprimirChar
 	mov dl, ' '
 	call imprimirChar
 	inc bx
 	loop colTab
 
-	call saltoLinea
+	call saltoLinea ; Terminamos de imprimir una fila y nos tenemos que pasar a la siguiente, como puse antes, si será el iterador real
 	inc si
 	cmp si, TAM
 	jb filaTab
@@ -197,18 +197,18 @@ colTab:
 	ret
 imprimirTablero endp
 
-mostrarMapa proc
+mostrarMapa proc ; Primera carga del tablero, cuando cargamos los barcos
 	push ax
 	push bx
 	push cx
 	push dx
 	push si
 
-	mov dx, offset cabecera
+	mov dx, offset cabecera ; solo es el header del tablero
 	call imprimirCadena
 
-	mov bx, 0
-	mov si, 0
+	mov bx, 0 ; iterador de columna
+	mov si, 0 ; iterador de fila
 
 filaReal:
 	mov dx, offset Sangria
@@ -225,7 +225,7 @@ filaReal:
 	mov cx, TAM
 
 colReal:
-	cmp byte ptr tableroReal[bx], 0
+	cmp byte ptr tableroReal[bx], 0 ; Necesitamos un tablero real y uno visible para que el enemigo no vea lo mismo que guardamos en el tablero original, si no, vería los barcos jaja. En la primera carga, el estratega ve sus barcos añadidos con #
 	je impAgua
 	mov dl, '#'
 	jmp impReal
@@ -238,9 +238,9 @@ impReal:
 	inc bx
 	loop colReal
 
-	call saltoLinea
+	call saltoLinea ; Si terminamos la fila, nos vamos a la siguiente
 	inc si
-	cmp si, TAM
+	cmp si, TAM ; Si terminamos, terminamos pue
 	jb filaReal
 
 	pop si
@@ -296,7 +296,7 @@ valFila:
 	jb filaMal
 	cmp al, 'J'
 	ja filaMal
-	sub al, 'A'
+	sub al, 'A' ; esto es importante para obtener el resultado numérico de la fila
 	mov fila, al
 	jmp finFila
 
@@ -318,9 +318,9 @@ pedirCol proc
 	call leerTecla
 
 	cmp al, '1'
-	je posibleDiez
+	je posibleDiez ; Lamentablemente toca hacer unas validaciones medio chanchas por los métodos de ingreso de datos que tenemos
 	cmp al, '2'
-	jb colMal
+	jb colMal ; Toca comparar con 2 porque si comparamos con 1, perdemos la posibilidad de ingresar el 10
 	cmp al, '9'
 	ja colMal
 	sub al, '1'
@@ -434,12 +434,12 @@ valV:
 valHorizontal:
 	mov al, columna
 	add al, largoAct
-	cmp al, 11
+	cmp al, 11 ; esto es lo qu evalida horizontalmente, si es mayor que el tamaño de la grilla, no puede entrar, tener cuidado con la validación en caso de cambiar el tamaño de la grilla
 	ja barcoNo
 	mov bx, posicion
 	mov cl, largoAct
 	mov ch, 0
-valH:
+valH: ;tanto valH como valV lo que hacen es validar si chocamos con otro barquito
 	cmp byte ptr tableroReal[bx], 0
 	jne barcoNo
 	inc bx
@@ -577,7 +577,7 @@ verificarDisparo proc
 	mov estado, 0
 	jmp finVerificar
 
-hayBarco:
+hayBarco: ; ¿cómo funciona esto? cada barco hace referencia a un indice en "array" barcos, en golpes guardamos la cantidad de golpes que recibió cada barco en base a su indice. si barcos[indice] == golpes[indice], entonces el barco está destruido, es sencillo.
 	mov al, tableroReal[bx]
 	mov tableroVis[bx], 'X'
 	inc aciertos

@@ -74,7 +74,7 @@ limpiarPantalla proc
 	pop cx
 	pop bx
 	pop ax
-	ret
+	ret ; por qué hacemos lo mismo 2 veces? porque el DOS box no asegura que el cursos vuelva donde le necesitamos.
 limpiarPantalla endp
 
 imprimirNumero proc
@@ -109,7 +109,7 @@ pausa proc
 	push dx
 	mov dx, offset TxtPausa
 	call imprimirCadena
-	mov ah, 8
+	mov ah, 8 ; Es la entrada sin eco que te pide que confirmes el inicio del juego
 	int 21h
 	pop dx
 	pop ax
