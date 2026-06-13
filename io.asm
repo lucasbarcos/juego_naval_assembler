@@ -61,7 +61,7 @@ limpiarPantalla proc
 	push bx
 	push cx
 	push dx
-	mov ax, 0600h
+	mov ax, 0600h ; acá básicamente el sistema interpreta que tiene que desplazar toda la ventana para arriba. AL=00h
 	mov bh, 07h
 	mov cx, 0000h
 	mov dx, 184fh
@@ -69,7 +69,7 @@ limpiarPantalla proc
 	mov ah, 02h
 	mov bh, 00h
 	mov dx, 0000h
-	int 10h
+	int 10h ; acá el DOS box recibe las coordenadas de la pantalla y limpia todo
 	pop dx
 	pop cx
 	pop bx
