@@ -77,7 +77,7 @@ limpiarPantalla proc
 	ret ; por qué hacemos lo mismo 2 veces? porque el DOS box no asegura que el cursos vuelva donde le necesitamos.
 limpiarPantalla endp
 
-imprimirNumero proc
+imprimirNumero proc ; Un reg2ascii improvisado, no nos pidan barcos de 100 posiciones porque se recontra pudre
 	push ax
 	push bx
 	push dx

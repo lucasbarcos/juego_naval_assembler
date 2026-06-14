@@ -46,8 +46,8 @@ extrn pausa:proc
 	       db "X = tocado, O = agua, ~ = sin disparar.",0dh,0ah,24h
 	TxtAgua db 0dh,0ah,"Agua!",0dh,0ah,24h
 	TxtTocado db 0dh,0ah,"Tocado!",0dh,0ah,24h
-	TxtRepet db 0dh,0ah,"Ya disparaste ahi. No pierdes intento.",0dh,0ah,24h
-	TxtInval db 0dh,0ah,"Coordenada invalida. Prueba otra vez.",0dh,0ah,24h
+	TxtRepet db 0dh,0ah,"Ya disparaste ahi. No perdes intento.",0dh,0ah,24h
+	TxtInval db 0dh,0ah,"Coordenada invalida. Proba otra vez.",0dh,0ah,24h
 	TxtPerd db 0dh,0ah,"Perdiste! Te quedaste sin intentos.",0dh,0ah,24h
 	TxtUbic db 0dh,0ah,"Los barcos estaban ubicados asi:",0dh,0ah,24h
 	TxtWin db 0dh,0ah
@@ -58,14 +58,14 @@ extrn pausa:proc
 	       db "        GGGGG    A   A   N   N   A   A   SSSSS    T    EEEEE",0dh,0ah,24h
 	TxtIntent db 0dh,0ah,"Intentos restantes: ",24h
 	TxtAciert db " | Aciertos: ",24h
-	TxtPausa db 0dh,0ah,"Presiona una tecla para seguir...",24h
+	TxtPausa db 0dh,0ah,"Apreta una tecla para seguir...",24h
 	cabecera db 0dh,0ah,"                       1 2 3 4 5 6 7 8 9 10",0dh,0ah,24h
 
 	; 0 = agua, 1-6 = numero de barco
 	tableroReal db TOTAL_CAS dup (0)
 	tableroVis db TOTAL_CAS dup ('~')
 
-	intentos db 35
+	intentos db 35  ; si queremos modificar los intentos
 	aciertos db 0
 	fila db 0
 	columna db 0
@@ -93,7 +93,7 @@ juego:
 		call imprimirCadena
 
 		call imprimirTablero
-		call imprimirEstado
+		call imprimirEstado ; Intentos y hits
 		call pedirDisparo
 
 		cmp byte ptr estado, 3
