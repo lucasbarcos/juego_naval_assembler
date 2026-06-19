@@ -10,6 +10,7 @@
 ; 4. imprimirChar recibe en DL el caracter que se quiere mostrar.
 ; 5. Las rutinas con color reciben el color en BL.
 ; 6. imprimirNumero convierte un numero de AL en caracteres visibles.
+; 7. INT 81h es una interrupcion propia instalada desde main.asm.
 ;
 ; Este archivo no contiene reglas de la batalla naval. Se usa como una
 ; caja de herramientas desde main.asm, tab.asm y mouse.asm.
@@ -65,13 +66,10 @@ imprimirCharColor proc
 	mov bh, 0
 	int 10h
 
-	; escribo el caracter con su atributo de color
+	; la interrupcion propia recibe AL = caracter y BL = color
 	mov ax, si
 	mov bx, di
-	mov bh, 0
-	mov cx, 1
-	mov ah, 09h
-	int 10h
+	int 81h
 
 	; avanzo el cursor una posicion
 	inc dl

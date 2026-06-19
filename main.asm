@@ -11,6 +11,7 @@
 ; 4. En cada turno imprime el tablero y espera un disparo con el mouse.
 ; 5. Segun estado informa agua, tocado, repetido o coordenada invalida.
 ; 6. Termina mostrando GANASTE o PERDISTE.
+; 7. Instala la interrupcion propia 81h para escribir caracteres con color.
 ;
 ; RELACION CON LOS OTROS ARCHIVOS:
 ; io.asm    = impresion, teclado, colores, pausas y limpieza de pantalla.
@@ -110,10 +111,83 @@ extrn sonidoDerrota:proc
 	posicion dw 0
 	estado db 0 ; Determina error, si no se decalra ningun estado, es agua, si es 1, es tocado, el resto son problemas
 
+	; aca se guarda la interrupcion 81h anterior para restaurarla al salir
+	antInt81Of dw 0
+	antInt81Seg dw 0
+
 .code
+; Interrupcion propia 81h.
+; Recibe AL = caracter y BL = color.
+; Usa la funcion 09h de INT 10h para escribir el caracter con color.
+interrupcionColor proc far
+	push ax
+	push bx
+	push cx
+
+	mov ah, 09h
+	mov bh, 0
+	mov cx, 1
+	int 10h
+
+	pop cx
+	pop bx
+	pop ax
+	iret
+interrupcionColor endp
+
+; Guarda el vector anterior e instala interrupcionColor en INT 81h.
+instalarInt81 proc
+	push ax
+	push bx
+	push dx
+	push es
+
+	; funcion 35h: obtiene el vector actual en ES:BX
+	mov ax, 3581h
+	int 21h
+	mov antInt81Of, bx
+	mov antInt81Seg, es
+
+	; funcion 25h: instala una nueva direccion para INT 81h
+	push ds
+	push cs
+	pop ds
+	mov dx, offset interrupcionColor
+	mov ax, 2581h
+	int 21h
+	pop ds
+
+	pop es
+	pop dx
+	pop bx
+	pop ax
+	ret
+instalarInt81 endp
+
+; Vuelve a colocar el vector que tenia INT 81h antes del juego.
+restaurarInt81 proc
+	push ax
+	push dx
+	push ds
+
+	mov dx, antInt81Of
+	mov ax, antInt81Seg
+	mov ds, ax
+	mov ax, 2581h
+	int 21h
+
+	pop ds
+	pop dx
+	pop ax
+	ret
+restaurarInt81 endp
+
 	main proc
 		mov ax, @data
 		mov ds, ax
+
+		; desde este momento INT 81h apunta a nuestra rutina de color
+		call instalarInt81
 
 		; portada grafica en modo VGA
 		call mostrarGraf
@@ -203,6 +277,8 @@ perdio:
 		call mostrarMapa
 
 fin:
+		; no dejar la interrupcion apuntando al juego despues de cerrarlo
+		call restaurarInt81
 		mov ax, 4c00h
 		int 21h
 	main endp
