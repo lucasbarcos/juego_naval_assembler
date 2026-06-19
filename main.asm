@@ -17,9 +17,8 @@ extrn mostrarMapa:proc
 extrn pausa:proc
 
 .data
-	TAM equ 10
-	TOTAL_CAS equ 100
-	TOTAL_BAR equ 19
+	TOTAL_CAS equ 100 ;si queremos agregar más casillas
+	TOTAL_BAR equ 19 ; si queremos agregar más barcos, tenemos que cambiar la sumatoria del peso. Ej: 5 + 5 + 4 + 3 = 17
 
 	public TxtPausa
 	public TxtIntent
@@ -71,7 +70,7 @@ extrn pausa:proc
 	fila db 0
 	columna db 0
 	posicion dw 0
-	estado db 0
+	estado db 0 ;Los estados indican error o acierto
 
 .code
 	main proc

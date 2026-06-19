@@ -5,7 +5,7 @@
 
 TAM equ 10
 TAM_VALIDACION equ 11
-CANTBAR equ 6
+CANTBAR equ 6 ; si queremos agregar más barcos
 
 extrn limpiarPantalla:proc
 extrn imprimirCadena:proc
@@ -46,9 +46,9 @@ extrn estado:byte
 	TxtBarH db "Hundido el barco ",24h
 	rowSide db 0
 
-	barcos db 5,4,3,3,2,2 ; Si queremos agregar m?s barcos, ac? ser?a
-	golpes db 6 dup (0)
-	hundidos db 6 dup (0)
+	barcos db 5,4,3,3,2,2 ; Si queremos agregar más barcos
+	golpes db 6 dup (0) ; si queremos agregar más barcos
+	hundidos db 6 dup (0) ; si queremos agregar más barcos
 	barcoAct db 0
 	largoAct db 0
 	orient db 0
