@@ -3,8 +3,9 @@
 .8086
 .model small
 
-TAM equ 10
-CANTBAR equ 6
+TAM equ 10 ;Si cambiar TAM, sumarle uno y asignarselo a VALIDATE_TAM_SIZE
+VALIDATE_TAM_SIZE equ 11
+CANTBAR equ 6 ; Si queremos agregar más barcos, acá hay que aumentar esta constante al número de barcos
 
 extrn limpiarPantalla:proc
 extrn imprimirCadena:proc
@@ -45,8 +46,8 @@ extrn estado:byte
 	rowSide db 0
 
 	barcos db 5,4,3,3,2,2 ; Si queremos agregar más barcos, acá sería
-	golpes db 6 dup (0)
-	hundidos db 6 dup (0)
+	golpes db 6 dup (0) ; Si queremos agregar más barcos, acá hay que aumentar el tamaño del dup
+	hundidos db 6 dup (0) ; lo mism oque arriba
 	barcoAct db 0
 	largoAct db 0
 	orient db 0
@@ -419,7 +420,7 @@ validarBarco proc
 
 	mov al, fila
 	add al, largoAct
-	cmp al, 11
+	cmp al, VALIDATE_TAM_SIZE
 	ja barcoNo
 	mov bx, posicion
 	mov cl, largoAct
@@ -434,7 +435,7 @@ valV:
 valHorizontal:
 	mov al, columna
 	add al, largoAct
-	cmp al, 11 ; esto es lo qu evalida horizontalmente, si es mayor que el tamaño de la grilla, no puede entrar, tener cuidado con la validación en caso de cambiar el tamaño de la grilla
+	cmp al, VALIDATE_TAM_SIZE ; esto es lo qu evalida horizontalmente, si es mayor que el tamaño de la grilla, no puede entrar, tener cuidado con la validación en caso de cambiar el tamaño de la grilla
 	ja barcoNo
 	mov bx, posicion
 	mov cl, largoAct

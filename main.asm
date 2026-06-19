@@ -17,8 +17,8 @@ extrn pausa:proc
 
 .data
 	TAM equ 10
-	TOTAL_CAS equ 100
-	TOTAL_BAR equ 19
+	TOTAL_CAS equ 100 ; Si queremos agregar más casillas
+	TOTAL_BAR equ 19  ; Si queremos agregar más barcos, hay que sumarle a esta var el peso de los barcos agregados
 
 	public TxtPausa
 	public TxtIntent
@@ -70,7 +70,7 @@ extrn pausa:proc
 	fila db 0
 	columna db 0
 	posicion dw 0
-	estado db 0
+	estado db 0 ; Determina error, si no se decalra ningun estado, es agua, si es 1, es tocado, el resto son problemas
 
 .code
 	main proc
