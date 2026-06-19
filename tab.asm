@@ -47,8 +47,8 @@ extrn estado:byte
 	rowSide db 0
 
 	barcos db 5,4,3,3,2,2 ; Si queremos agregar más barcos
-	golpes db 6 dup (0) ; si queremos agregar más barcos
-	hundidos db 6 dup (0) ; si queremos agregar más barcos
+	golpes db 6 dup (0) ; si queremos agregar más barcos, acá poner cantidad de barcos
+	hundidos db 6 dup (0) ; si queremos agregar más barcos, acá poner cantidad de barcos
 	barcoAct db 0
 	largoAct db 0
 	orient db 0
