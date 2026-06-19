@@ -1,14 +1,39 @@
-; Libreria propia con rutinas del tablero y reglas.
+; LIBRERIA DEL TABLERO Y DE LAS REGLAS
+;
+; Este archivo se encarga de casi toda la logica de la batalla naval:
+; dibuja los tableros, coloca los barcos, valida que entren, registra
+; disparos y controla cuando un barco queda hundido.
+;
+; COMO FUNCIONA:
+; 1. cargarBarcos recorre la lista 5, 4, 3, 3, 2, 2.
+; 2. El mouse elige la casilla inicial y el teclado pide H o V.
+; 3. validarBarco revisa limites y evita superponer barcos.
+; 4. ponerBarco guarda en cada casilla el numero del barco.
+; 5. verificarDisparo compara el tablero visible con el tablero real.
+; 6. golpes cuenta los aciertos recibidos por cada barco.
+; 7. hundidos permite mostrar a la derecha los barcos ya destruidos.
+;
+; DATOS IMPORTANTES:
+; barcos   = largo de cada uno de los 6 barcos.
+; golpes   = cantidad de impactos que recibio cada barco.
+; hundidos = vale 1 cuando ese barco ya fue destruido.
+; posicion = indice entre 0 y 99 calculado como fila * 10 + columna.
+;
+; Si se cambia la cantidad o el largo de los barcos tambien hay que
+; revisar CANTBAR, barcos, golpes, hundidos y TOTAL_BAR de main.asm.
 
 .8086
 .model small
 
-TAM equ 10
-CANTBAR equ 6
+TAM equ 10 ;Si cambiar TAM, sumarle uno y asignarselo a VALIDATE_TAM_SIZE
+VALIDATE_TAM_SIZE equ 11
+CANTBAR equ 6  ; Si queremos agregar más barcos, acá hay que aumentar esta constante al número de barcos
+
 
 extrn limpiarPantalla:proc
 extrn imprimirCadena:proc
 extrn imprimirChar:proc
+extrn imprimirCharColor:proc
 extrn leerTecla:proc
 extrn leerHastaEnter:proc
 extrn saltoLinea:proc
@@ -166,7 +191,10 @@ filaTab:
 	mov ax, si
 	add al, 'A' ; Podemos hacer esto porque sabemos que el tablero siempre va a lucir igual, si es realmente la referencia a la fila
 	mov dl, al
-	call imprimirChar
+	push bx
+	mov bl, 0Eh
+	call imprimirCharColor
+	pop bx
 	mov dl, ' '
 	call imprimirChar
 	mov dl, ' ' ; estos espacios son para tirar facha nomas, para que quede lindo
@@ -175,8 +203,19 @@ filaTab:
 	mov cx, TAM ; El tama?o de la grilla, si pedro pide hacerlo m?s grande o chico, cambia TAM
 
 colTab:
-	mov dl, tableroVis[bx] ; Los guiones raros que usamos para marcar la ausencia de algo en el tablero (empty state?????). NO siempre ser?n guiones, los vamos a reemplazar por lo que sea que usemos para marcar barcos
-	call imprimirChar
+	push bx
+	mov dl, tableroVis[bx]
+	mov bl, 0Bh            ; celeste para casilla sin disparar
+	cmp dl, 'O'
+	jne compXColor
+	mov bl, 09h             ; azul para agua
+compXColor:
+	cmp dl, 'X'
+	jne impCasColor
+	mov bl, 0Ch             ; rojo para acierto
+impCasColor:
+	call imprimirCharColor
+	pop bx
 	mov dl, ' '
 	call imprimirChar
 	inc bx
@@ -217,7 +256,10 @@ filaReal:
 	mov ax, si
 	add al, 'A'
 	mov dl, al
-	call imprimirChar
+	push bx
+	mov bl, 0Eh
+	call imprimirCharColor
+	pop bx
 	mov dl, ' '
 	call imprimirChar
 	mov dl, ' '
@@ -226,14 +268,18 @@ filaReal:
 	mov cx, TAM
 
 colReal:
+	push bx
 	cmp byte ptr tableroReal[bx], 0 ; Necesitamos un tablero real y uno visible para que el enemigo no vea lo mismo que guardamos en el tablero original, si no, ver?a los barcos jaja. En la primera carga, el estratega ve sus barcos a?adidos con #
 	je impAgua
 	mov dl, '#'
+	mov bl, 0Ah            ; verde para barcos
 	jmp impReal
 impAgua:
 	mov dl, '~'
+	mov bl, 0Bh            ; celeste para agua
 impReal:
-	call imprimirChar
+	call imprimirCharColor
+	pop bx
 	mov dl, ' '
 	call imprimirChar
 	inc bx
@@ -297,7 +343,7 @@ valFila:
 	jb filaMal
 	cmp al, 'J'
 	ja filaMal
-	sub al, 'A' ; esto es importante para obtener el resultado num?rico de la fila
+	sub al, 'A' ; esto es importante para obtener el resultado numerico de la fila
 	mov fila, al
 	jmp finFila
 
@@ -319,7 +365,7 @@ pedirCol proc
 	call leerTecla
 
 	cmp al, '1'
-	je posibleDiez ; Lamentablemente toca hacer unas validaciones medio chanchas por los m?todos de ingreso de datos que tenemos
+	je posibleDiez ; Lamentablemente toca hacer unas validaciones medio chanchas por los metodos de ingreso de datos que tenemos
 	cmp al, '2'
 	jb colMal ; Toca comparar con 2 porque si comparamos con 1, perdemos la posibilidad de ingresar el 10
 	cmp al, '9'
@@ -420,7 +466,9 @@ validarBarco proc
 
 	mov al, fila
 	add al, largoAct
-	cmp al, 11
+	; no sacar esta validacion: fila inicial + largo no puede superar TAM
+	; si se permite TAM+1 el barco se escribe fuera de la cuadricula
+	cmp al, TAM
 	ja barcoNo
 	mov bx, posicion
 	mov cl, largoAct
@@ -435,7 +483,9 @@ valV:
 valHorizontal:
 	mov al, columna
 	add al, largoAct
-	cmp al, 11 ; esto es lo qu evalida horizontalmente, si es mayor que el tama?o de la grilla, no puede entrar, tener cuidado con la validaci?n en caso de cambiar el tama?o de la grilla
+	; no sacar esta validacion: columna inicial + largo no puede superar TAM
+	; evita que un barco horizontal continue en la fila siguiente
+	cmp al, TAM ; esto es lo qu evalida horizontalmente, si es mayor que el tama?o de la grilla, no puede entrar, tener cuidado con la validaci?n en caso de cambiar el tama?o de la grilla
 	ja barcoNo
 	mov bx, posicion
 	mov cl, largoAct
@@ -517,13 +567,13 @@ imprimirHundidos proc
 	push dx
 	push si
 
-	mov dh, 5
+	mov dh, 8
 	mov dl, 52
 	call ponerCursor
 	mov dx, offset TxtPanel
 	call imprimirCadena
 
-	mov byte ptr rowSide, 7
+	mov byte ptr rowSide, 10
 	mov si, 0
 
 recHund:
@@ -541,8 +591,11 @@ recHund:
 	mov cl, barcos[si]
 	mov ch, 0
 impXs:
+	push bx
 	mov dl, 'X'
-	call imprimirChar
+	mov bl, 0Ch
+	call imprimirCharColor
+	pop bx
 	loop impXs
 
 	inc byte ptr rowSide
@@ -578,7 +631,7 @@ verificarDisparo proc
 	mov estado, 0
 	jmp finVerificar
 
-hayBarco: ; ?c?mo funciona esto? cada barco hace referencia a un indice en "array" barcos, en golpes guardamos la cantidad de golpes que recibi? cada barco en base a su indice. si barcos[indice] == golpes[indice], entonces el barco est? destruido, es sencillo.
+hayBarco: ; como funciona esto? cada barco hace referencia a un indice en "array" barcos, en golpes guardamos la cantidad de golpes que recibi? cada barco en base a su indice. si barcos[indice] == golpes[indice], entonces el barco est? destruido, es sencillo.
 	mov al, tableroReal[bx]
 	mov tableroVis[bx], 'X'
 	inc aciertos
@@ -612,6 +665,12 @@ finVerificar:
 verificarDisparo endp
 
 end
+
+
+
+
+
+
 
 
 

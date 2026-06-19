@@ -1,5 +1,18 @@
-; Libreria para elegir una casilla del tablero usando el mouse.
-; Si DOSBox no encuentra mouse, vuelve al ingreso por teclado.
+; LIBRERIA PARA CONTROLAR EL MOUSE
+;
+; Este archivo permite seleccionar una casilla durante la carga de
+; barcos y durante los disparos. Si DOSBox no encuentra un mouse,
+; se vuelve automaticamente al ingreso de fila y columna por teclado.
+;
+; COMO FUNCIONA:
+; 1. Usa INT 33h para iniciar, mostrar, ocultar y leer el mouse.
+; 2. Espera que se presione y se suelte el boton izquierdo.
+; 3. Convierte las coordenadas de pixels a filas y columnas de texto.
+; 4. Rechaza clics fuera del tablero y sobre los espacios negros.
+; 5. Calcula posicion con la formula fila * 10 + columna.
+;
+;Nota: FilaBase cambia porque el tablero aparece una linea mas abajo durante
+; el juego que durante la carga. Esta diferencia no se debe eliminar.
 
 .8086
 .model small
@@ -101,9 +114,13 @@ esperarSuelta:
 	; las casillas ocupan desde la columna 23 hasta la 42
 	cmp ax, 23
 	jb clicInvalido
-	cmp ax, 42
+	cmp ax, 41
 	ja clicInvalido
 	sub ax, 23
+	; no sacar esto: las casillas estan separadas por un espacio negro
+	; si el resultado es impar significa que se hizo clic en ese espacio
+	test ax, 1
+	jnz clicInvalido
 
 	; cada casilla ocupa 2 columnas de texto
 	xor dx, dx
@@ -118,6 +135,12 @@ esperarSuelta:
 	xor dx, dx
 	mov bx, 8
 	div bx
+	; no sacar esto: evita aceptar el borde negro de arriba o abajo
+	; DX guarda el pixel dentro de la fila de texto
+	cmp dx, 1
+	jb clicInvalido
+	cmp dx, 6
+	ja clicInvalido
 
 	; FilaBase vale 5 durante la carga y 6 durante el juego
 	xor dx, dx
@@ -160,6 +183,8 @@ finMouse:
 leerCasillaMouse endp
 
 end
+
+
 
 
 
