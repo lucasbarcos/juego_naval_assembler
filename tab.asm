@@ -4,6 +4,7 @@
 .model small
 
 TAM equ 10
+TAM_VALIDACION equ 11
 CANTBAR equ 6
 
 extrn limpiarPantalla:proc
@@ -420,7 +421,7 @@ validarBarco proc
 
 	mov al, fila
 	add al, largoAct
-	cmp al, 11
+	cmp al, TAM_VALIDACION
 	ja barcoNo
 	mov bx, posicion
 	mov cl, largoAct
@@ -435,7 +436,7 @@ valV:
 valHorizontal:
 	mov al, columna
 	add al, largoAct
-	cmp al, 11 ; esto es lo qu evalida horizontalmente, si es mayor que el tama?o de la grilla, no puede entrar, tener cuidado con la validaci?n en caso de cambiar el tama?o de la grilla
+	cmp al, TAM_VALIDACION ; esto es lo qu evalida horizontalmente, si es mayor que el tama?o de la grilla, no puede entrar, tener cuidado con la validaci?n en caso de cambiar el tama?o de la grilla
 	ja barcoNo
 	mov bx, posicion
 	mov cl, largoAct
