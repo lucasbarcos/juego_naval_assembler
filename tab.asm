@@ -14,6 +14,7 @@ extrn leerHastaEnter:proc
 extrn saltoLinea:proc
 extrn imprimirNumero:proc
 extrn pausa:proc
+extrn pedirCasillaMouse:proc
 
 extrn TxtIntent:byte
 extrn TxtAciert:byte
@@ -44,7 +45,7 @@ extrn estado:byte
 	TxtBarH db "Hundido el barco ",24h
 	rowSide db 0
 
-	barcos db 5,4,3,3,2,2 ; Si queremos agregar más barcos, acá sería
+	barcos db 5,4,3,3,2,2 ; Si queremos agregar m?s barcos, ac? ser?a
 	golpes db 6 dup (0)
 	hundidos db 6 dup (0)
 	barcoAct db 0
@@ -171,17 +172,17 @@ filaTab:
 	mov dl, ' ' ; estos espacios son para tirar facha nomas, para que quede lindo
 	call imprimirChar
 
-	mov cx, TAM ; El tamaño de la grilla, si pedro pide hacerlo más grande o chico, cambia TAM
+	mov cx, TAM ; El tama?o de la grilla, si pedro pide hacerlo m?s grande o chico, cambia TAM
 
 colTab:
-	mov dl, tableroVis[bx] ; Los guiones raros que usamos para marcar la ausencia de algo en el tablero (empty state?????). NO siempre serán guiones, los vamos a reemplazar por lo que sea que usemos para marcar barcos
+	mov dl, tableroVis[bx] ; Los guiones raros que usamos para marcar la ausencia de algo en el tablero (empty state?????). NO siempre ser?n guiones, los vamos a reemplazar por lo que sea que usemos para marcar barcos
 	call imprimirChar
 	mov dl, ' '
 	call imprimirChar
 	inc bx
 	loop colTab
 
-	call saltoLinea ; Terminamos de imprimir una fila y nos tenemos que pasar a la siguiente, como puse antes, si será el iterador real
+	call saltoLinea ; Terminamos de imprimir una fila y nos tenemos que pasar a la siguiente, como puse antes, si ser? el iterador real
 	inc si
 	cmp si, TAM
 	jb filaTab
@@ -225,7 +226,7 @@ filaReal:
 	mov cx, TAM
 
 colReal:
-	cmp byte ptr tableroReal[bx], 0 ; Necesitamos un tablero real y uno visible para que el enemigo no vea lo mismo que guardamos en el tablero original, si no, vería los barcos jaja. En la primera carga, el estratega ve sus barcos añadidos con #
+	cmp byte ptr tableroReal[bx], 0 ; Necesitamos un tablero real y uno visible para que el enemigo no vea lo mismo que guardamos en el tablero original, si no, ver?a los barcos jaja. En la primera carga, el estratega ve sus barcos a?adidos con #
 	je impAgua
 	mov dl, '#'
 	jmp impReal
@@ -252,12 +253,12 @@ impReal:
 mostrarMapa endp
 
 pedirInicioBarco proc
-	call pedirFila
+	; primero se elige con el mouse la casilla inicial
+	call pedirCasillaMouse
 	cmp byte ptr estado, 3
 	je finPedirIni
-	call pedirCol
-	cmp byte ptr estado, 3
-	je finPedirIni
+
+	; despues del clic se pide H o V por teclado
 	call pedirOri
 finPedirIni:
 	ret
@@ -296,7 +297,7 @@ valFila:
 	jb filaMal
 	cmp al, 'J'
 	ja filaMal
-	sub al, 'A' ; esto es importante para obtener el resultado numérico de la fila
+	sub al, 'A' ; esto es importante para obtener el resultado num?rico de la fila
 	mov fila, al
 	jmp finFila
 
@@ -318,7 +319,7 @@ pedirCol proc
 	call leerTecla
 
 	cmp al, '1'
-	je posibleDiez ; Lamentablemente toca hacer unas validaciones medio chanchas por los métodos de ingreso de datos que tenemos
+	je posibleDiez ; Lamentablemente toca hacer unas validaciones medio chanchas por los m?todos de ingreso de datos que tenemos
 	cmp al, '2'
 	jb colMal ; Toca comparar con 2 porque si comparamos con 1, perdemos la posibilidad de ingresar el 10
 	cmp al, '9'
@@ -434,7 +435,7 @@ valV:
 valHorizontal:
 	mov al, columna
 	add al, largoAct
-	cmp al, 11 ; esto es lo qu evalida horizontalmente, si es mayor que el tamaño de la grilla, no puede entrar, tener cuidado con la validación en caso de cambiar el tamaño de la grilla
+	cmp al, 11 ; esto es lo qu evalida horizontalmente, si es mayor que el tama?o de la grilla, no puede entrar, tener cuidado con la validaci?n en caso de cambiar el tama?o de la grilla
 	ja barcoNo
 	mov bx, posicion
 	mov cl, largoAct
@@ -577,7 +578,7 @@ verificarDisparo proc
 	mov estado, 0
 	jmp finVerificar
 
-hayBarco: ; ¿cómo funciona esto? cada barco hace referencia a un indice en "array" barcos, en golpes guardamos la cantidad de golpes que recibió cada barco en base a su indice. si barcos[indice] == golpes[indice], entonces el barco está destruido, es sencillo.
+hayBarco: ; ?c?mo funciona esto? cada barco hace referencia a un indice en "array" barcos, en golpes guardamos la cantidad de golpes que recibi? cada barco en base a su indice. si barcos[indice] == golpes[indice], entonces el barco est? destruido, es sencillo.
 	mov al, tableroReal[bx]
 	mov tableroVis[bx], 'X'
 	inc aciertos
@@ -611,5 +612,7 @@ finVerificar:
 verificarDisparo endp
 
 end
+
+
 
 

@@ -10,6 +10,7 @@ extrn imprimirCadena:proc
 extrn imprimirTablero:proc
 extrn imprimirEstado:proc
 extrn pedirDisparo:proc
+extrn pedirDisparoMouse:proc
 extrn verificarDisparo:proc
 extrn cargarBarcos:proc
 extrn mostrarMapa:proc
@@ -42,7 +43,7 @@ extrn pausa:proc
 	       db "           ~~~~~       ~~~~~        ~~~~~",0dh,0ah,24h
 
 	titulo db 0dh,0ah,"=== BATALLA NAVAL ===",0dh,0ah,24h
-	reglas db "Dispara con fila A-J y columna 1-10.",0dh,0ah
+	reglas db "Hace clic en una casilla para disparar.",0dh,0ah
 	       db "X = tocado, O = agua, ~ = sin disparar.",0dh,0ah,24h
 	TxtAgua db 0dh,0ah,"Agua!",0dh,0ah,24h
 	TxtTocado db 0dh,0ah,"Tocado!",0dh,0ah,24h
@@ -94,8 +95,8 @@ juego:
 
 		call imprimirTablero
 		call imprimirEstado ; Intentos y hits
-		call pedirDisparo
-
+		; el disparo se elige haciendo clic en el tablero
+		call pedirDisparoMouse
 		cmp byte ptr estado, 3
 		je coordenadaInvalida
 
@@ -103,12 +104,12 @@ juego:
 
 		cmp byte ptr estado, 2
 		je disparoRepetido
-
-		dec byte ptr intentos
-
+		; si fue tocado no se pierde intento
 		cmp byte ptr estado, 1
 		je disparoTocado
 
+		; solamente se descuenta cuando cae en agua
+		dec byte ptr intentos
 		mov dx, offset TxtAgua
 		call imprimirCadena
 		jmp revisarFin
@@ -159,3 +160,5 @@ fin:
 	main endp
 
 end main
+
+

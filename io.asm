@@ -61,7 +61,7 @@ limpiarPantalla proc
 	push bx
 	push cx
 	push dx
-	mov ax, 0600h ; acá básicamente el sistema interpreta que tiene que desplazar toda la ventana para arriba. AL=00h
+	mov ax, 0600h ; ac? b?sicamente el sistema interpreta que tiene que desplazar toda la ventana para arriba. AL=00h
 	mov bh, 07h
 	mov cx, 0000h
 	mov dx, 184fh
@@ -69,12 +69,12 @@ limpiarPantalla proc
 	mov ah, 02h
 	mov bh, 00h
 	mov dx, 0000h
-	int 10h ; acá el DOS box recibe las coordenadas de la pantalla y limpia todo
+	int 10h ; ac? el DOS box recibe las coordenadas de la pantalla y limpia todo
 	pop dx
 	pop cx
 	pop bx
 	pop ax
-	ret ; por qué hacemos lo mismo 2 veces? porque el DOS box no asegura que el cursos vuelva donde le necesitamos.
+	ret ; por qu? hacemos lo mismo 2 veces? porque el DOS box no asegura que el cursos vuelva donde le necesitamos.
 limpiarPantalla endp
 
 imprimirNumero proc ; Un reg2ascii improvisado, no nos pidan barcos de 100 posiciones porque se recontra pudre
@@ -91,7 +91,10 @@ imprimirNumero proc ; Un reg2ascii improvisado, no nos pidan barcos de 100 posic
 
 	add al, 30h
 	mov dl, al
+	; guardo AX porque en AH esta la unidad del numero
+	push ax
 	call imprimirChar
+	pop ax
 
 soloUnidad:
 	add ah, 30h
@@ -117,3 +120,4 @@ pausa proc
 pausa endp
 
 end
+
