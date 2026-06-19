@@ -61,7 +61,7 @@ limpiarPantalla proc
 	push bx
 	push cx
 	push dx
-	mov ax, 0600h
+	mov ax, 0600h ; ac? b?sicamente el sistema interpreta que tiene que desplazar toda la ventana para arriba. AL=00h
 	mov bh, 07h
 	mov cx, 0000h
 	mov dx, 184fh
@@ -69,15 +69,15 @@ limpiarPantalla proc
 	mov ah, 02h
 	mov bh, 00h
 	mov dx, 0000h
-	int 10h
+	int 10h ; ac? el DOS box recibe las coordenadas de la pantalla y limpia todo
 	pop dx
 	pop cx
 	pop bx
 	pop ax
-	ret
+	ret ; por qu? hacemos lo mismo 2 veces? porque el DOS box no asegura que el cursos vuelva donde le necesitamos.
 limpiarPantalla endp
 
-imprimirNumero proc
+imprimirNumero proc ; Un reg2ascii improvisado, no nos pidan barcos de 100 posiciones porque se recontra pudre
 	push ax
 	push bx
 	push dx
@@ -91,7 +91,10 @@ imprimirNumero proc
 
 	add al, 30h
 	mov dl, al
+	; guardo AX porque en AH esta la unidad del numero
+	push ax
 	call imprimirChar
+	pop ax
 
 soloUnidad:
 	add ah, 30h
@@ -109,7 +112,7 @@ pausa proc
 	push dx
 	mov dx, offset TxtPausa
 	call imprimirCadena
-	mov ah, 8
+	mov ah, 8 ; Es la entrada sin eco que te pide que confirmes el inicio del juego
 	int 21h
 	pop dx
 	pop ax
@@ -117,3 +120,4 @@ pausa proc
 pausa endp
 
 end
+
